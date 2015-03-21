@@ -26,6 +26,7 @@ void help_command(int, char **);
 void host_command(int, char **);
 void mmtest_command(int, char **);
 void test_command(int, char **);
+void new_command(int, char **);
 void _command(int, char **);
 int fib(int);
 
@@ -40,6 +41,7 @@ cmdlist cl[]={
 	MKCL(mmtest, "heap memory allocation test"),
 	MKCL(help, "help"),
 	MKCL(test, "test new function"),
+	MKCL(new, "create new task"),
 	MKCL(, ""),
 };
 
@@ -177,7 +179,6 @@ void test_command(int n, char *argv[]) {
         fio_printf(1, "Open file error!\n\r");
         return;
     }
-    fio_printf(1, "handle=%d\r\n", handle);
     char *buffer = "Test host_write function which can write data to output/syslog\n";
     error = host_action(SYS_WRITE, handle, (void *)buffer, strlen(buffer));
     if(error != 0) {
@@ -199,6 +200,16 @@ void test_command(int n, char *argv[]) {
 
     host_action(SYS_CLOSE, handle);
 
+}
+
+void hiThere_task(){
+	while(1);
+}
+
+void new_command(int n, char *argv[]) {
+
+	xTaskCreate(hiThere_task, (signed portCHAR *) "hiThere", 256, NULL, tskIDLE_PRIORITY + 1, NULL);
+	fio_printf(1, "\r\n");
 }
 
 void _command(int n, char *argv[]){
