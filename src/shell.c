@@ -9,6 +9,8 @@
 #include "task.h"
 #include "host.h"
 
+#include <stdlib.h>
+
 typedef struct {
 	const char *name;
 	cmdfunc *fptr;
@@ -25,6 +27,7 @@ void host_command(int, char **);
 void mmtest_command(int, char **);
 void test_command(int, char **);
 void _command(int, char **);
+int fib(int);
 
 #define MKCL(n, d) {.name=#n, .fptr=n ## _command, .desc=d}
 
@@ -67,7 +70,7 @@ void ls_command(int n, char *argv[]){
     if(n == 0){
         dir = fs_opendir("");
     }else if(n == 1){
-        dir = fs_opendir(argv[1]);
+        dir = fs_opendir(argv[1]);        
         //if(dir == )
     }else{
         fio_printf(1, "Too many argument!\r\n");
@@ -174,7 +177,7 @@ void test_command(int n, char *argv[]) {
         fio_printf(1, "Open file error!\n\r");
         return;
     }
-
+    fio_printf(1, "handle=%d\r\n", handle);
     char *buffer = "Test host_write function which can write data to output/syslog\n";
     error = host_action(SYS_WRITE, handle, (void *)buffer, strlen(buffer));
     if(error != 0) {
@@ -183,7 +186,19 @@ void test_command(int n, char *argv[]) {
         return;
     }
 
+    if(n==2){
+    	if(!strcmp(argv[1], "fib")){
+    		fio_printf(1, "The first 10 numbers of fibonacci sequence are as following:\r\n");
+    		int i;
+    		for(i = 0;i < 10;i++){
+    			fio_printf(1, "%d\r\n", fib(i));
+    		}
+    	}
+    }
+
+
     host_action(SYS_CLOSE, handle);
+
 }
 
 void _command(int n, char *argv[]){
@@ -200,4 +215,10 @@ cmdfunc *do_command(const char *cmd){
 			return cl[i].fptr;
 	}
 	return NULL;	
+}
+
+int fib(int x){	
+	if(x<=0) return 0;
+	if(x==1) return 1;
+	return fib(x-1) + fib(x-2);
 }
